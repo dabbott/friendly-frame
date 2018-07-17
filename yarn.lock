@@ -3200,6 +3200,10 @@ punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
 
+query-string-parser@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/query-string-parser/-/query-string-parser-0.2.1.tgz#98bf770dc788f604e39fcd8b13ef14f9e26e1ae3"
+
 querystring-es3@^0.2.0:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/querystring-es3/-/querystring-es3-0.2.1.tgz#9ec61f79049875707d69414596fd907a4d711e73"

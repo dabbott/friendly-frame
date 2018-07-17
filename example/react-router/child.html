@@ -8,10 +8,10 @@
 <script type="text/babel">
   const { Router, Route, Link } = ReactRouterDOM;
 
-  const memoryHistory = FriendlyFrame.initialize({ debugLevel: 'verbose' });
-
-  const initialPath = decodeURIComponent(window.location.hash.slice(1)) || '/';
-  memoryHistory.push(initialPath)
+  const memoryHistory = FriendlyFrame.initialize({
+    debugLevel: 'verbose',
+    initializeFromQueryStringParameter: true,
+  });
 
   const Home = () => (
     <div>
