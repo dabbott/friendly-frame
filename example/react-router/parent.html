@@ -1,0 +1,72 @@
+<div>
+  Parent!</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.1/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.1/umd/react-dom.development.js"></script>
+<script src="../../build/parent.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/history/4.7.2/history.min.js"></script>
+<script type="text/babel">
+  // const history = History.createBrowserHistory();
+
+  const basename = location.href.replace('/parent.html', '');
+  const src = location.href.replace('/parent.html', '/child.html');
+
+  const initialPath =
+    decodeURIComponent(window.location.hash.slice(1));
+
+  console.log('initialPath', initialPath)
+
+  class App extends React.Component {
+    constructor(props) {
+      super(props);
+
+      this.state = {
+        location: {
+          hash: initialPath,
+        },
+      };
+    }
+
+    render() {
+      const { location } = this.state;
+
+      return (
+        <div>
+          Child Frame
+          <FriendlyFrame
+            debugLevel={"verbose"}
+            basename={basename}
+            src={src}
+            location={location}
+            onChangeLocation={location => {
+              this.setState({ location });
+
+              window.location.hash = encodeURIComponent(History.createPath(location))
+            }}
+          />
+          <button
+            onClick={() => {
+              const newLocation = {
+                pathname: "/about",
+              };
+
+              this.setState({
+                location: newLocation,
+              });
+
+              window.location.hash = encodeURIComponent(History.createPath(newLocation))
+            }}
+          >
+            Set location
+          </button>
+        </div>
+      );
+    }
+  }
+
+  const root = document.createElement("div");
+
+  document.body.appendChild(root);
+
+  ReactDOM.render(<App />, root);
+</script>

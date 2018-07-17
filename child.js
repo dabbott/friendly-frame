@@ -1,5 +1,5 @@
 import Postmate from "postmate";
-import createHistory from "history/createBrowserHistory";
+import createHistory from "history/createMemoryHistory";
 import { createPath } from "history";
 
 let lock = false;
@@ -63,4 +63,6 @@ export function initialize(rawOptions) {
       }
     });
   });
+
+  return history;
 }

@@ -1,0 +1,85 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.1/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.1/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/4.3.1/react-router.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/4.3.1/react-router-dom.min.js"></script>
+<script src="../../build/child.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.js"></script>
+
+<script type="text/babel">
+  const { Router, Route, Link } = ReactRouterDOM;
+
+  const memoryHistory = FriendlyFrame.initialize({ debugLevel: 'verbose' });
+
+  const initialPath = decodeURIComponent(window.location.hash.slice(1)) || '/';
+  memoryHistory.push(initialPath)
+
+  const Home = () => (
+    <div>
+      <h2>Home</h2>
+    </div>
+  )
+
+  const About = () => (
+    <div>
+      <h2>About</h2>
+    </div>
+  )
+
+  const Topic = ({ match }) => (
+    <div>
+      <h3>{match.params.topicId}</h3>
+    </div>
+  )
+
+  const Topics = ({ match }) => (
+    <div>
+      <h2>Topics</h2>
+      <ul>
+        <li>
+          <Link to={`${match.url}/rendering`}>
+            Rendering with React
+        </Link>
+        </li>
+        <li>
+          <Link to={`${match.url}/components`}>
+            Components
+        </Link>
+        </li>
+        <li>
+          <Link to={`${match.url}/props-v-state`}>
+            Props v. State
+        </Link>
+        </li>
+      </ul>
+
+      <Route path={`${match.path}/:topicId`} component={Topic} />
+      <Route exact path={match.path} render={() => (
+        <h3>Please select a topic.</h3>
+      )} />
+    </div>
+  )
+
+  const BasicExample = () => (
+    <Router history={memoryHistory}>
+      <div>
+        <ul>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/about">About</Link></li>
+          <li><Link to="/topics">Topics</Link></li>
+        </ul>
+
+        <hr />
+
+        <Route exact path="/" component={Home} />
+        <Route path="/about" component={About} />
+        <Route path="/topics" component={Topics} />
+      </div>
+    </Router>
+  )
+
+  const root = document.createElement("div");
+
+  document.body.appendChild(root);
+
+  ReactDOM.render(<BasicExample />, root);
+</script>
