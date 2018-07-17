@@ -2,8 +2,6 @@ import Postmate from "postmate";
 import createHistory from "history/createBrowserHistory";
 import { createPath } from "history";
 
-const history = createHistory();
-
 let lock = false;
 
 function callWithLock(f) {
@@ -16,35 +14,53 @@ function isLocked() {
   return lock;
 }
 
-const root = document.createElement("div");
+export function initialize(rawOptions) {
+  const options = {
+    debugLevel: "verbose",
+    history: undefined,
+    ...rawOptions
+  };
 
-document.body.appendChild(root);
+  const { debugLevel } = options;
 
-const handshake = new Postmate.Model({
-  // Expose your model to the Parent. Property values may be functions, promises, or regular values
-  height: () => document.height || document.body.offsetHeight,
-  push: location => {
-    console.log("child push", location);
-    callWithLock(() => {
-      const path = createPath(location);
-      history.push();
-      root.textContent = path;
-    });
+  log("verbose", () => {
+    console.log("Child: Options", options);
+  });
+
+  function log(level, f) {
+    if (debugLevel !== level) return;
+
+    f();
   }
-});
 
-// When parent <-> child handshake is complete, events may be emitted to the parent
-handshake.then(parent => {
-  console.log("child handshake ok");
+  const history = options.history || createHistory();
 
-  // Listen for changes to the current location.
-  const unlisten = history.listen((location, action) => {
-    // location is an object like window.location
-    console.log(action, location.pathname, location.state);
+  const handshake = new Postmate.Model({
+    push: location => {
+      callWithLock(() => {
+        const path = createPath(location);
+        history.push(location);
 
-    if (!isLocked()) {
-      console.log("emit location");
-      parent.emit("location", location);
+        log("verbose", () => {
+          console.log("Child: Pushed location", location);
+        });
+      });
     }
   });
-});
+
+  handshake.then(parent => {
+    log("verbose", () => {
+      console.log("Child: Handshake complete");
+    });
+
+    const unlisten = history.listen((location, action) => {
+      if (!isLocked()) {
+        log("verbose", () => {
+          console.log("Child: Emit location", location);
+        });
+
+        parent.emit("location", location);
+      }
+    });
+  });
+}

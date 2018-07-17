@@ -1,75 +1,104 @@
 import React from "react";
 import ReactDOM from "react-dom";
-
+import { createPath } from "history";
 import Postmate from "postmate";
+import PropTypes from "prop-types";
 
 export default class FriendlyFrame extends React.Component {
-  // static propTypes = {
-  //   location,
-  //   onChangeLocation
-  // }
+  static propTypes = {
+    location: PropTypes.shape({
+      pathname: PropTypes.string,
+      search: PropTypes.string,
+      hash: PropTypes.string
+    }).isRequired,
+    onChangeLocation: PropTypes.func,
+    debugLevel: PropTypes.oneOf(["none", "verbose"])
+  };
 
   static defaultProps = {
-    onChangeLocation: () => {}
+    onChangeLocation: () => {},
+    debugLevel: "none"
   };
 
-  // static getDerivedStateFromProps(props) {
+  /**
+   * Get the child iframe
+   */
+  getChild() {
+    return this.child;
+  }
 
-  //   return {
-  //     location:
-  //   }
-  // }
+  /**
+   * Get the container element
+   */
+  getContainerElement() {
+    return this.container;
+  }
 
-  getUrl = () => {
-    const {
-      location: { pathname, search, hash }
-    } = this.props;
+  log(level, f) {
+    const { debugLevel } = this.props;
 
-    const url = [pathname, search, hash].filter(x => !!x).join("");
+    if (debugLevel !== level) return;
 
-    return url;
-  };
+    f();
+  }
 
   componentDidMount() {
-    const { onChangeLocation } = this.props;
+    const { location, onChangeLocation, debugLevel } = this.props;
 
-    const url = this.getUrl();
+    const url = createPath(location);
 
-    // Kick off the handshake with the iFrame
-    const handshake = new Postmate({
-      container: this.container, // Element to inject frame into
-      url // Page to load, must have postmate.js. This will also be the origin used for communication.
-    });
+    const handshake = new Postmate({ container: this.container, url });
 
-    // When parent <-> child handshake is complete, data may be requested from the child
     handshake.then(child => {
-      console.log("parent handshake ok");
+      this.log("verbose", () => {
+        console.log("Parent: Handshake complete");
+      });
 
       this.child = child;
 
       // Listen to a particular event from the child
       this.child.on("location", location => {
+        this.log("verbose", () => {
+          console.log("Parent: Child changed its location", location);
+        });
+
         onChangeLocation(location);
       });
     });
   }
 
   componentDidUpdate(prevProps) {
-    console.log(prevProps.location, "?", this.props.location);
-
     if (this.child && prevProps.location !== this.props.location) {
-      console.log("updating iframe location");
+      this.log("verbose", () => {
+        console.log(
+          "Parent: Telling child to update its location",
+          this.props.location
+        );
+      });
 
       this.child.call("push", this.props.location);
     }
   }
 
+  componentWillUnmount() {
+    if (this.child) {
+      this.log("verbose", () => {
+        console.log("Parent: Destroying child iframe", this.props.location);
+      });
+
+      this.child.destroy();
+    }
+  }
+
   render() {
+    const { location, onChangeLocation, debugLevel, ...rest } = this.props;
+
     return (
       <div
         ref={ref => {
           this.container = ref;
         }}
+        {...rest}
       />
     );
   }

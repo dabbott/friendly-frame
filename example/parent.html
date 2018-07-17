@@ -32,10 +32,10 @@
         return (
           <div>
             Child Frame
-        <FriendlyFrame
+            <FriendlyFrame
+              debugLevel={"verbose"}
               location={location}
               onChangeLocation={location => {
-                console.log("set loc", location);
                 this.setState({ location });
               }}
             />
@@ -50,7 +50,7 @@
               }}
             >
               Set location
-        </button>
+            </button>
           </div>
         );
       }
