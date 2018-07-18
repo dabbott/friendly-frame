@@ -1,8 +1,11 @@
 {
   "name": "friendly-frame",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "files": [
+    "build"
+  ],
   "peerDependencies": {
     "react": "^16.4.1",
     "react-dom": "^16.4.1"
